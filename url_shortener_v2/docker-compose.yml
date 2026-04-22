@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: url_shortener_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-encurtador}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-encurtador}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - url_shortener_network
+
+  # Aplicação FastAPI
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: url_shortener_app
+    ports:
+      - "${APP_PORT:-5000}:5000"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-encurtador}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY não configurada! Configure no .env}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    networks:
+      - url_shortener_network
+    restart: unless-stopped
+
+networks:
+  url_shortener_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+
+
