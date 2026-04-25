@@ -34,7 +34,7 @@ class URL(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = Column(Boolean, default=True, index=True)
-    count = Column(Integer, default=0)
+    hits = Column(Integer, default=0)
     
     # Relacionamento
     owner = relationship("User", back_populates="urls")

@@ -9,7 +9,7 @@ Esse é um microsserviço em Python/FastAPI para criação, listagem e gerenciam
 - Geração automática de códigos curtos alfanuméricos
 - Paginação configurável de resultados
 - Isolamento de URLs por usuário
-- Contador de acessos (counts)
+- Contador de acessos (hits)
 - Validação básica de URLs
 - Permissões de usuário vs administrador
 - Redirecionamento público via `/{short_code}`
@@ -213,7 +213,7 @@ url_shortener_v2/
 
 ## Reflexão sobre melhorias arquiteturais
 
-### Por que otimizar o desempenho?
+### Desempenho?
 - A rapidez é um aspecto fundamental em qualquer tipo de aplicação. Ao olhar para as consultas de short_code, percebi que existe um padrão de acesso que se repete de maneira contínua. Portanto, a introdução de um mecanismo de cache poderia melhorar o desempenho.
 
 ### Consistência de dados

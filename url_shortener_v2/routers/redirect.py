@@ -32,8 +32,8 @@ def redirect_to_url(
             detail="Esta URL foi deletada"
         )
     
-    # Incrementa o contador de count
-    url.count += 1
+    # Incrementa o contador de hits
+    url.hits += 1
     db.commit()
     
     # Redireciona para a URL original

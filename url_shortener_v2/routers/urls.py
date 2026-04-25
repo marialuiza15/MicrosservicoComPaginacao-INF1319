@@ -26,7 +26,7 @@ def serialize_url(url: URL, request: Request) -> dict:
         "user_id": url.user_id,
         "created_at": url.created_at,
         "is_active": url.is_active,
-        "count": url.count,
+        "hits": url.hits,
     }
 
 

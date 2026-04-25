@@ -48,7 +48,7 @@ class URLResponse(BaseModel):
     user_id: str
     created_at: datetime
     is_active: bool
-    count: int
+    hits: int
     
     class Config:
         from_attributes = True
