@@ -1,15 +1,15 @@
-﻿# URL Shortener v2 - Encurtador de URLs - INF1319
+﻿# URL Shortener - Encurtador de URLs - INF1319
 
 ## Visão Geral
 
-URL Shortener v2 é um microsserviço em Python/FastAPI para criação, listagem e gerenciamento de URLs encurtadas. Ele foi desenvolvido para suportar usuários autenticados, oferecer paginação nas listagens e permitir controle de acesso às URLs de cada usuário.
+Esse é um microsserviço em Python/FastAPI para criação, listagem e gerenciamento de URLs encurtadas.
 
 ### Principais funcionalidades
 - Autenticação JWT com tokens expiráveis
 - Geração automática de códigos curtos alfanuméricos
 - Paginação configurável de resultados
 - Isolamento de URLs por usuário
-- Contador de acessos (hits)
+- Contador de acessos (counts)
 - Validação básica de URLs
 - Permissões de usuário vs administrador
 - Redirecionamento público via `/{short_code}`
@@ -30,8 +30,6 @@ docker-compose up --build
 A API ficará disponível em:
 
 - `http://localhost:5000`
-- Swagger UI: `http://localhost:5000/docs`
-- Redoc: `http://localhost:5000/redoc`
 
 ### Parar o projeto
 
@@ -44,21 +42,21 @@ docker-compose down
 As configurações principais são carregadas pela aplicação via `.env` e também expostas no Docker Compose.
 
 ### Obrigatórias
-- `DATABASE_URL` — string de conexão com o PostgreSQL
-- `SECRET_KEY` — chave secreta para assinatura de tokens JWT
+- DATABASE_URL — string de conexão com o PostgreSQL
+- SECRET_KEY — chave secreta para assinatura de tokens JWT
 
 ### Opcionais e padrões do Docker
-- `DB_USER` (default: `user`)
-- `DB_PASSWORD` (default: `password`)
-- `DB_NAME` (default: `encurtador`)
-- `DB_PORT` (default: `5432`)
-- `APP_PORT` (default: `5000`)
+- DB_USER (default: user)
+- DB_PASSWORD (default: password)
+- DB_NAME (default: encurtador)
+- DB_PORT (default: 5432)
+- APP_PORT (default: 5000)
 
 ### Configurações internas
-- `ALGORITHM` (default: `HS256`)
-- `ACCESS_TOKEN_EXPIRE_MINUTES` (default: `30`)
-- `DEFAULT_PAGE_SIZE` (default: `10`)
-- `MAX_PAGE_SIZE` (default: `100`)
+- ALGORITHM (default: HS256)
+- ACCESS_TOKEN_EXPIRE_MINUTES (default: 30)
+- DEFAULT_PAGE_SIZE (default: 10)
+- MAX_PAGE_SIZE (default: 100)
 
 ## Endpoints principais
 
@@ -193,10 +191,8 @@ GET /1cbm9s
 
 ## Estrutura do projeto
 
-```text
+```
 url_shortener_v2/
-├── API_EXAMPLES.md
-├── ARCHITECTURE.md
 ├── auth.py
 ├── config.py
 ├── database.py
@@ -218,24 +214,12 @@ url_shortener_v2/
 ## Melhorias recomendadas
 
 ### Performance
-- Usar cache (Redis ou similar) para consultas de `short_code`
-- Processar o incremento de `hits` de forma assíncrona ou em lote
-- Evitar `OFFSET` em paginação para grandes volumes (usar cursor/keyset pagination)
-- Garantir índices no banco para `short_code`, `user_id` e `created_at`
+- Usar algum mecanismo de cache para consultas de `short_code`
 
 ### Consistência de dados
 - Usar soft delete para permitir auditoria e recuperação
-- Garantir transações confiáveis em operações de criação e exclusão
-
+  
 ### Arquitetura e acoplamento
-- Separar camadas de rotas, serviços, repositórios e modelos
+- Separar camadas de rotas, serviços, repositórios e modelos, organizando em pastas.
 - Centralizar validações e regras de negócio fora dos handlers de rota
 
-### Resiliência
-- Adicionar rate limiting para evitar abuso
-- Monitorar latência, erros e contagem de conexões
-- Preparar o app para rodar em múltiplas instâncias
-
-## Observações finais
-
-Esse projeto já oferece a base de um serviço de encurtamento de URLs. Para torná-lo mais robusto em produção, priorize cache de redirecionamento, escrita assíncrona de métricas e paginação eficiente.
