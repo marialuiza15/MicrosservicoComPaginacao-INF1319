@@ -6,18 +6,12 @@ from database import get_db
 
 router = APIRouter(tags=["redirect"])
 
-
 @router.get("/{short_code}")
 def redirect_to_url(
     short_code: str,
     db: Session = Depends(get_db)
-):
-    """
-    Redireciona para a URL original baseado no código curto
-    
-    Incrementa o contador de cliques
-    """
-    
+    ):
+
     url = db.query(URL).filter(URL.short_code == short_code).first()
     
     if not url:
@@ -32,9 +26,7 @@ def redirect_to_url(
             detail="Esta URL foi deletada"
         )
     
-    # Incrementa o contador de hits
     url.hits += 1
     db.commit()
     
-    # Redireciona para a URL original
     return RedirectResponse(url=url.original_url, status_code=302)

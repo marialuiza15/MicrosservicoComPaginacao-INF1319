@@ -6,7 +6,6 @@ import uuid
 
 Base = declarative_base()
 
-
 class User(Base):
     __tablename__ = "users"
     
@@ -17,12 +16,10 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relacionamento
     urls = relationship("URL", back_populates="owner", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<User {self.username}>"
-
 
 class URL(Base):
     __tablename__ = "urls"
@@ -36,7 +33,6 @@ class URL(Base):
     is_active = Column(Boolean, default=True, index=True)
     hits = Column(Integer, default=0)
     
-    # Relacionamento
     owner = relationship("User", back_populates="urls")
     
     def __repr__(self):

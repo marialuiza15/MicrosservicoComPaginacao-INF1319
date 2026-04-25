@@ -2,14 +2,11 @@ from pydantic import BaseModel, HttpUrl, field_validator
 from datetime import datetime
 from typing import Optional, List
 
-
-# ===== User Schemas =====
 class UserBase(BaseModel):
     username: str
 
 class UserCreate(UserBase):
     password: str
-
 
 class UserResponse(UserBase):
     id: str
@@ -19,8 +16,6 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-
-# ===== URL Schemas =====
 class URLBase(BaseModel):
     original_url: str
     
@@ -31,14 +26,11 @@ class URLBase(BaseModel):
             raise ValueError('URL deve começar com http:// ou https://')
         return v
 
-
 class URLCreate(URLBase):
     pass
 
-
 class URLDelete(BaseModel):
     url_id: str
-
 
 class URLResponse(BaseModel):
     id: str
@@ -53,12 +45,9 @@ class URLResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 class URLUpdate(BaseModel):
     is_active: Optional[bool] = None
 
-
-# ===== Pagination Schemas =====
 class PaginatedResponse(BaseModel):
     total: int
     page: int
@@ -68,12 +57,9 @@ class PaginatedResponse(BaseModel):
     has_next: bool
     has_previous: bool
 
-
-# ===== Auth Schemas =====
 class Token(BaseModel):
     access_token: str
     token_type: str
-
 
 class TokenData(BaseModel):
     username: Optional[str] = None
