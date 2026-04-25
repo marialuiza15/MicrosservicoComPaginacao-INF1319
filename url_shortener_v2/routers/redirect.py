@@ -32,35 +32,9 @@ def redirect_to_url(
             detail="Esta URL foi deletada"
         )
     
-    # Incrementa o contador de hits
-    url.hits += 1
+    # Incrementa o contador de count
+    url.count += 1
     db.commit()
     
     # Redireciona para a URL original
-    return RedirectResponse(url=url.original_url, status_code=301)
-
-
-@router.get("/stats/{short_code}")
-def get_stats(
-    short_code: str,
-    db: Session = Depends(get_db)
-):
-    """
-    Retorna estatísticas de uma URL encurtada
-    """
-    
-    url = db.query(URL).filter(URL.short_code == short_code).first()
-    
-    if not url:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="URL não encontrada"
-        )
-    
-    return {
-        "short_code": url.short_code,
-        "original_url": url.original_url,
-        "hits": url.hits,
-        "is_active": url.is_active,
-        "created_at": url.created_at
-    }
+    return RedirectResponse(url=url.original_url, status_code=302)

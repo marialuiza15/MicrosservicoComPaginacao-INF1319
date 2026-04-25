@@ -26,11 +26,11 @@ def serialize_url(url: URL, request: Request) -> dict:
         "user_id": url.user_id,
         "created_at": url.created_at,
         "is_active": url.is_active,
-        "hits": url.hits,
+        "count": url.count,
     }
 
 
-@router.post("/", response_model=URLResponse, status_code=201)
+@router.post("/new", response_model=URLResponse, status_code=201)
 def create_short_url(
     url_data: URLCreate,
     request: Request,
@@ -38,13 +38,21 @@ def create_short_url(
     db: Session = Depends(get_db)
 ):
     """
-    Cria uma nova URL encurtada
-    
-    Requer autenticação. A URL será associada ao usuário autenticado.
+    Cria uma nova URL encurtada. 
+    Requer autenticação pois a  URL será associada ao usuário autenticado.
     """
+    # Verifica se a URL já foi encurtada por este usuário
+    existing_url = db.query(URL).filter(
+        URL.user_id == current_user.id,
+        URL.original_url == url_data.original_url
+    ).first()
+
+    if existing_url:
+        return serialize_url(existing_url, request)
+
     # Gera um código curto único
     short_code = generate_unique_short_code(db)
-    
+     
     # Cria a URL no banco
     new_url = URL(
         original_url=url_data.original_url,
@@ -60,48 +68,7 @@ def create_short_url(
     return serialize_url(new_url, request)
 
 
-@router.get("/user/my-urls", response_model=PaginatedResponse)
-def list_user_urls(
-    request: Request,
-    page: int = Query(1, ge=1, description="Número da página"),
-    page_size: int = Query(settings.DEFAULT_PAGE_SIZE, ge=1, le=settings.MAX_PAGE_SIZE, description="Itens por página"),
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    📌 ENDPOINT 2: Lista apenas as URLs do usuário autenticado com paginação
-    
-    **Segurança**: Cada usuário só vê suas próprias URLs
-    
-    Query Parameters:
-    - page: número da página (padrão: 1)
-    - page_size: quantidade de itens por página (padrão: 10, máx: 100)
-    """
-    
-    # Conta o total de URLs do usuário
-    total = db.query(func.count(URL.id)).filter(URL.user_id == current_user.id).scalar()
-    
-    # Calcula valores de paginação
-    total_pages = (total + page_size - 1) // page_size
-    skip = (page - 1) * page_size
-    
-    # Busca as URLs do usuário na página
-    urls = db.query(URL).filter(
-        URL.user_id == current_user.id
-    ).order_by(URL.created_at.desc()).offset(skip).limit(page_size).all()
-    
-    return PaginatedResponse(
-        total=total,
-        page=page,
-        page_size=page_size,
-        total_pages=total_pages,
-        items=[serialize_url(url, request) for url in urls],
-        has_next=page < total_pages,
-        has_previous=page > 1
-    )
-
-
-@router.get("/user/all", response_model=PaginatedResponse)
+@router.get("/my-all-urls", response_model=PaginatedResponse)
 def list_all_user_urls(
     request: Request,
     page: int = Query(1, ge=1, description="Número da página"),
@@ -142,7 +109,7 @@ def list_all_user_urls(
     )
 
 
-@router.delete("/", status_code=204)
+@router.delete("/remove", status_code=204)
 def delete_url(
     payload: URLDelete,
     current_user: User = Depends(get_current_user),
@@ -181,25 +148,3 @@ def delete_url(
     
     return None
 
-
-@router.get("/{short_code}", response_model=URLResponse)
-def get_url_info(
-    short_code: str,
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    """
-    Obtém informações sobre uma URL encurtada pelo seu código curto
-    
-    (Não requer autenticação - apenas visualiza info pública)
-    """
-    
-    url = db.query(URL).filter(URL.short_code == short_code).first()
-    
-    if not url:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="URL não encontrada"
-        )
-    
-    return serialize_url(url, request)
