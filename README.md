@@ -211,15 +211,16 @@ url_shortener_v2/
     └── urls.py
 ```
 
-## Melhorias recomendadas
+## Reflexão sobre melhorias arquiteturais
 
-### Performance
-- Usar algum mecanismo de cache para consultas de `short_code`
+### Por que otimizar o desempenho?
+- A rapidez é um aspecto fundamental em qualquer tipo de aplicação. Ao olhar para as consultas de short_code, percebi que existe um padrão de acesso que se repete de maneira contínua. Portanto, a introdução de um mecanismo de cache poderia melhorar o desempenho.
 
 ### Consistência de dados
-- Usar soft delete para permitir auditoria e recuperação
+- O endpoint responsável por eliminar URLs remove todos os seus registros de forma permanente, o que não é ideal para fins de auditoria. Quando optamos por um soft delete, mantemos a capacidade de realizar uma auditoria completa e recuperar dados, estabelecendo um histórico que não pode ser alterado.
   
-### Arquitetura e acoplamento
-- Separar camadas de rotas, serviços, repositórios e modelos, organizando em pastas.
-- Centralizar validações e regras de negócio fora dos handlers de rota
+### Acoplamento da solução 
+- Neste projeto, uma rota possui conhecimento excessivo sobre validação, persistência e lógica de negócios, resultando em uma combinação de funções dentro do handler da rota que faz tudo ao mesmo tempo. Acredito que seria mais vantajoso para a manutenção criar camadas bem definidas: rotas, serviços, repositórios e modelos. Dessa forma, podemos centralizar as validações e regras de negócios fora dos manipuladores, o que aumenta a reutilização do código.
 
+### Resiliência
+- Um usuário pode enviar requisições para o mesmo endpoint um número ilimitado de vezes, ou seja, o projeto apresenta vulnerabilidades a ataques DDOS, por isso a implementação de Rate limiting é importante para proteger o sistema.
