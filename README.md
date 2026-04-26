@@ -193,12 +193,10 @@ url_shortener_v2/
 ├── database.py
 ├── docker-compose.yml
 ├── Dockerfile
-├── entrypoint.sh
 ├── main.py
 ├── models.py
 ├── requirements.txt
 ├── schemas.py
-├── seed.py
 ├── utils.py
 └── routers/
     ├── auth.py
