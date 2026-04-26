@@ -20,7 +20,6 @@ Esse é um microsserviço em Python/FastAPI para criação, listagem e gerenciam
 - Variáveis de ambiente configuradas (via .env ou no ambiente)
 
 ## Como executar
-
 ```bash
 cd url_shortener_v2
 
@@ -28,17 +27,14 @@ docker-compose up --build
 ```
 
 A API ficará disponível em:
-
 - `http://localhost:5000`
 
 ### Parar o projeto
-
 ```bash
 docker-compose down
 ```
 
 ## Variáveis de ambiente
-
 As configurações principais são carregadas pela aplicação via `.env` e também expostas no Docker Compose.
 
 ### Obrigatórias
@@ -136,7 +132,7 @@ Lista as URLs do usuário autenticado com paginação.
 - `page` (opcional): número da página (default: `1`)
 - `page_size` (opcional): itens por página (default: `10`, máximo `100`)
 
-**Example Request:**
+**Examplo:**
 ```
 GET /api/v2/urls/my-all-urls?page=1&page_size=10
 Authorization: Bearer {seu_token}
@@ -176,21 +172,20 @@ Deleta uma URL encurtada. Apenas o proprietário pode deletar.
 }
 ```
 
-**Response (204 No Content)**n
+**Response (204 No Content)**
 
 ### 3. Redirecionamento público
 
 #### GET `/{short_code}`
 Redireciona para a URL original e incrementa contador de acessos.
 
-**Example:**
+**Exemplo:**
 ```
 GET /1cbm9s
-→ 302 Redirect para https://github.com/settings/copilot/features
+ 302 Redirect para https://github.com/settings/copilot/features
 ```
 
-## Estrutura do projeto
-
+## Estrutura
 ```
 url_shortener_v2/
 ├── auth.py
@@ -214,13 +209,13 @@ url_shortener_v2/
 ## Reflexão sobre melhorias arquiteturais
 
 ### Desempenho?
-- A rapidez é um aspecto fundamental em qualquer tipo de aplicação. Ao olhar para as consultas de short_code, percebi que existe um padrão de acesso que se repete de maneira contínua. Portanto, a introdução de um mecanismo de cache poderia melhorar o desempenho.
+- A rapidez é fundamental em qualquer tipo de aplicação. Ao olhar para as consultas de short_code, percebi que existe um padrão de acesso que se repete de maneira contínua. Portanto, a introdução de um mecanismo de cache poderia melhorar o desempenho.
 
 ### Consistência de dados
-- O endpoint responsável por eliminar URLs remove todos os seus registros de forma permanente, o que não é ideal para fins de auditoria. Quando optamos por um soft delete, mantemos a capacidade de realizar uma auditoria completa e recuperar dados, estabelecendo um histórico que não pode ser alterado.
+- O endpoint responsável por eliminar URLs remove todos os seus registros de forma permanente, o que não é ideal para fins de auditoria. Quando optamos por um soft delete, mantemos a capacidade de realizar uma auditoria completa e recuperar dados.
   
 ### Acoplamento da solução 
-- Neste projeto, uma rota possui conhecimento excessivo sobre validação, persistência e lógica de negócios, resultando em uma combinação de funções dentro do handler da rota que faz tudo ao mesmo tempo. Acredito que seria mais vantajoso para a manutenção criar camadas bem definidas: rotas, serviços, repositórios e modelos. Dessa forma, podemos centralizar as validações e regras de negócios fora dos manipuladores, o que aumenta a reutilização do código.
+- Uma rota possui conhecimento excessivo sobre validação, persistência e lógica de negócios, resultando em uma combinação de funções dentro do handler da rota que faz tudo ao mesmo tempo. Acredito que seria mais vantajoso para a manutenção criar camadas bem definidas: rotas, serviços, repositórios e modelos. Dessa forma, podemos centralizar as validações e regras de negócios fora dos manipuladores, o que melhora a reutilização do código.
 
 ### Resiliência
-- Um usuário pode enviar requisições para o mesmo endpoint um número ilimitado de vezes, ou seja, o projeto apresenta vulnerabilidades a ataques DDOS, por isso a implementação de Rate limiting é importante para proteger o sistema.
+- Um usuário pode enviar requisições para o mesmo endpoint um número ilimitado de vezes, ou seja, há vulnerabilidades a ataques DDOS, por isso a implementação de Rate limiting é importante para proteger o sistema.
